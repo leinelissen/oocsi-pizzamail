@@ -2,10 +2,11 @@ import http.requests.*;
 import nl.tue.id.oocsi.*;
 
 // Settings
-String apiUrl = "https://api.mailgun.net/v3/mg.codified.nl/messages";
+String apiUrl = "https://api.mailgun.net/v3/domainname.com/messages";
 String apiKey = "";
 String defaultFrom = "oocsi-mail@codified.nl";
 String oocsiServer = "oocsi.id.tue.nl";
+String oocsiChannel = "PizzaMail";
 
 void setup()
 {
@@ -14,7 +15,7 @@ void setup()
   
   // Setup OOCSI
   OOCSI oocsi = new OOCSI(this, "PizzaMail", oocsiServer);
-  oocsi.subscribe("PizzaMail", "eventHandler");
+  oocsi.subscribe(oocsiChannel, "eventHandler");
   println('\n');
 }
 
