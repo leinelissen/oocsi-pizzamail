@@ -9,6 +9,8 @@ To use the interface, open up the Processing file and make sure you set the foll
 * **apiUrl**: Your API endpoint for the email request. Use [Mailgun](https://mailgun.com) for this.
 * **apiKey**: The corresponding API key for your API endpoint.
 
+Also make sure you have installed the [OOCSI-processing](https://github.com/iddi/oocsi-processing) package and the [HTTP Requests for Processing](https://github.com/runemadsen/HTTP-Requests-for-Processing) package, or else Processing will nag you with vague errors.
+
 Once you have done so, the interface will listen for events on the specified channel. Once an event is received, it will check the incoming data. If all parameters are present, a request is passed to the Mailgun server, and the email will be sent.
 
 ## Sending an email
@@ -25,13 +27,13 @@ If your data is correct and a PizzaMail bot is listening, your email will be sen
 oocsi
 .channel("PizzaMail")
  // from address
- .data("from", "oocsi-mail@codified.nl")
+ .data("from", "do-not-reply@definitelynotspam.com")
  // to address
- .data("to", "lei.nelissen94@gmail.com")
+ .data("to", "example@email.com")
  // email subject
- .data("subject", "FEESTEN")
+ .data("subject", "Party at my house!")
  // email content
- .data("content", "DINGEN")
+ .data("content", "Free pizza and beer. Everyone is invited.")
  // send the email 🍕
  .send();
 ```
