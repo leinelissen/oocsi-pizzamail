@@ -37,9 +37,14 @@ void eventHandler(OOCSIEvent event)
   
   // Send email
   boolean email = sendEmail(event.getString("to"), event.getString("subject"), event.getString("content"), event.getString("from"));
-  System.out.println("Email successfully sent!");
-  System.out.println("\n");
- 
+  
+  // Log message
+  System.out.println("Email successfully sent: {");
+  System.out.println("  \"to\": \"" + event.getString("to") + "\"");
+  System.out.println("  \"from\": \"" + event.getString("from") + "\"");
+  System.out.println("  \"subject\": \"" + event.getString("subject") + "\"");
+  System.out.println("  \"content\": \"" + event.getString("content") + "\"");
+  System.out.println("} \n");
 }
 
 /**
