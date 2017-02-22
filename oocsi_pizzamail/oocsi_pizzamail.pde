@@ -1,19 +1,15 @@
 import http.requests.*;
 import nl.tue.id.oocsi.*;
 
-// Settings
-String apiUrl = "https://api.mailgun.net/v3/domainname.com/messages";
-String apiKey = "";
-String defaultFrom = "oocsi-mail@codified.nl";
 /**
 *  ===================================================
 *  Settings
 *  ===================================================
 */
-String apiUrl = "https://api.mailgun.net/v3/mg.codified.nl/messages";
-String apiKey = "key-ac41318d2c5feba23e02ed787e4d7c5e";
-String replyEmail = "pizzamail-reply@mg.codified.nl";
-String oocsiServer = "oocsi.id.tue.nl";
+String apiUrl = "https://api.mailgun.net/v3/domainname.com/messages";
+String apiKey = "";
+String replyEmail = "pizzamail-reply@domainname.com";
+String oocsiServer = "";
 String oocsiChannel = "PizzaMail";
 
 OOCSI oocsi;
