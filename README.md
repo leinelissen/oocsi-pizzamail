@@ -14,8 +14,7 @@ Also make sure you have installed the [OOCSI-processing](https://github.com/iddi
 Once you have done so, the interface will listen for events on the specified channel. Once an event is received, it will check the incoming data. If all parameters are present, a request is passed to the Mailgun server, and the email will be sent.
 
 ## Sending an email
-You need to specify four parameters in order to send an email:
-* **from**: The email address the email will originate from
+You need to specify three parameters in order to send an email:
 * **to**: The email address you will be sending the email to
 * **subject**: The subject of the email
 * **content**: The content of the email
@@ -24,16 +23,57 @@ If your data is correct and a PizzaMail bot is listening, your email will be sen
 
 ### Example code
 ```java
-oocsi
-.channel("PizzaMail")
- // from address
- .data("from", "do-not-reply@definitelynotspam.com")
- // to address
- .data("to", "example@email.com")
- // email subject
- .data("subject", "Party at my house!")
- // email content
- .data("content", "Free pizza and beer. Everyone is invited.")
- // send the email 🍕
- .send();
+import nl.tue.id.oocsi.*;
+
+void setup()
+{
+  // Setup processing
+  size(100, 100);
+
+  // Setup OOCSI
+  OOCSI oocsi = new OOCSI(this, "Your-name", "oocsi.id.tue.nl");
+
+  // Subscribe to your own channel, so you will be able to receive responses by the PizzaMail server
+  oocsi.subscribe("Your-name", "eventHandler");
+
+  // Start sending an OOCSI message
+  oocsi
+    // We listen to the PizzaMail channel
+    .channel("PizzaMail")
+    // To whom do you want to send an email?
+    .data("to", "lei.nelissen94@gmail.com")
+    // What is the subject of your email?
+    .data("subject", "Party at my house!")
+    // What is the content of your email?
+    .data("content", "Free pizza and beer. Everyone is invited.")
+    // Send the email! 🍕
+    .send();
+}
+
+void eventHandler(OOCSIEvent event){
+    // Output any response received from the PizzaMail server
+    System.out.println("Received a new message from PizzaMail:");
+    System.out.println("Message: " + event.getString("message"));
+    System.out.println("Success: " + event.getString("success") + "\n");
+}
+```
+
+### Responses
+Whenever sending an email, PizzaMail will let you know if your message has been sent successfully. It does this by sending a message to your own channel. You can listen for these messages by subscribing to the channel with your own name. PizzaMail will then send two variables:
+* **message**: a string containing whatever PizzaMail wants to tell you
+* **success**: a boolean, telling you if an action has succeeded.
+
+#### For example
+```
+Message: Your email was successfully sent! Tracking ID: <20170305174111.121094.66148.F958E694@your-email-domain.com>
+Success: true
+```
+
+## Email replies
+If properly set up, PizzaMail will also handle incoming emails too! Whenever you send an email to someone, PizzaMail will return a tracking ID to you. When the email you sent is replied to, PizzaMail will relay this message back to you using OOCSI. All you need to do is listen for PizzaMail responses as indicated above!
+
+#### For example
+```
+Message: You received a reply to your email with ID '<20170305174111.121094.66148.F958E694@mg.codified.nl>'. Message: 'We are out of pepperoni unfortunately 😰'
+Success: true
 ```
