@@ -59,14 +59,23 @@ void eventHandler(OOCSIEvent event){
 ```
 
 ### Responses
-Whenever sending an email, PizzaMail will let you know if your message has been sent successfully. It does this by sending a message to your own channel. You can listen for these messages by subscribing to the channel with your own name. PizzaMail will then send two variables:
+Whenever sending an email, PizzaMail will let you know if your message has been sent successfully. It does this by sending a message to your own channel. You can listen for these messages by subscribing to the channel with your own name. PizzaMail will then send some variables:
 * **message**: a string containing whatever PizzaMail wants to tell you
 * **success**: a boolean, telling you if an action has succeeded.
+* **status**: a short status code detailing what is happening
+    * *"missing-parameters"*: You did not supply the correct parameters for sending an email
+    * *"error-while-sending"*: Something went wrong while passing your email off to Mailgun.
+    * *"sent"*: Your email has been sent!
+    * *"reply"*: A reply was received to an email you have previously sent
+* **id**: a tracking ID for an email you have sent or a reply you have received. *[only included with **sent** and **reply** status]*
+* **reply**: the contents of an email reply you have received. *[only included with **reply** status]*
 
 #### For example
 ```
-Message: Your email was successfully sent! Tracking ID: <20170305174111.121094.66148.F958E694@your-email-domain.com>
+Message: Your email was successfully sent!
 Success: true
+Status: sent
+Id: <20170305174111.121094.66148.F958E694@your-email-domain.com>
 ```
 
 ## Email replies
@@ -74,6 +83,9 @@ If properly set up, PizzaMail will also handle incoming emails too! Whenever you
 
 #### For example
 ```
-Message: You received a reply to your email with ID '<20170305174111.121094.66148.F958E694@mg.codified.nl>'. Message: 'We are out of pepperoni unfortunately 😰'
+Message: You received a reply to your email.
 Success: true
+Status: reply
+Id: <20170305174111.121094.66148.F958E694@mg.codified.nl>
+Reply: We are out of pepperoni unfortunately 😰
 ```
