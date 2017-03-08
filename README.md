@@ -54,7 +54,10 @@ void eventHandler(OOCSIEvent event){
     // Output any response received from the PizzaMail server
     System.out.println("Received a new message from PizzaMail:");
     System.out.println("Message: " + event.getString("message"));
-    System.out.println("Success: " + event.getString("success") + "\n");
+    System.out.println("Success: " + event.getString("success"));
+    System.out.println("Status: " + event.getString("status"));
+    System.out.println("Id: " + event.getString("id"));
+    System.out.println("Reply: " + event.getString("reply") + "\n");
 }
 ```
 
