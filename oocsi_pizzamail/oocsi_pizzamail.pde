@@ -71,7 +71,7 @@ void eventHandler(OOCSIEvent event)
         // Check if event contains to, content and subject
         // If that is not the case, return error and exit execution
         log("Received request is missing parameters");
-        sendResponse(event.getSender(), "Your request is missing parameters", false);
+        sendResponse(event.getSender(), "Your request is missing parameters", false, "error-missing-parameters");
 
         return;
     }
@@ -84,7 +84,7 @@ void eventHandler(OOCSIEvent event)
         // Check if the email was succesfully sent
         // If not, log message and send response to client including error message
         log("Sending email failed! Please check the API response");
-        sendResponse(event.getSender(), "An error occured while sending your email. Response: \n" + request.getContent(), false);
+        sendResponse(event.getSender(), "An error occured while sending your email. Response: \n" + request.getContent(), false, "error-while-sending");
 
         return;
     }
@@ -93,7 +93,7 @@ void eventHandler(OOCSIEvent event)
     registerEmail(event.getSender(), json.getString("id"));
 
     // Send response to client
-    sendResponse(event.getSender(), "Your email was successfully sent! Tracking ID: " + json.getString("id"), true);
+    sendResponse(event.getSender(), "Your email was successfully sent!", true, "sent", json.getString("id"));
 }
 
 /**
@@ -149,13 +149,26 @@ void registerEmail(String user, String id)
 *  Send response to OOCSI client
 *  ===================================================
 */
-void sendResponse(String user, String message, boolean success)
+void sendResponse(String user, String message, boolean success, String status, String id, String reply)
 {
     oocsi
         .channel(user)
         .data("message", message)
         .data("success", success)
+        .data("status", status)
+        .data("id", id)
+        .data("reply", reply)
         .send();
+}
+
+void sendResponse(String user, String message, boolean success, String status)
+{
+  sendResponse(user, message, success, status, null, null);  
+}
+
+void sendResponse(String user, String message, boolean success, String status, String id)
+{
+  sendResponse(user, message, success, status, id, null);  
 }
 
 /**
@@ -199,8 +212,7 @@ void checkResponses()
         String origin = sentEmails.get(response.getString("In-Reply-To"));
         if(origin != null) {
             // If it exists, pass message back to OOCSI user
-            String responseString = "You received a reply to your email with ID '" + response.getString("In-Reply-To") + "'. Message: '" + response.getString("stripped-text") + "'";
-            sendResponse(origin, responseString, true);
+            sendResponse(origin, "You received a reply to your email.", true, "reply", response.getString("In-Reply-To"), response.getString("stripped-text"));
 
             // Log action
             log("Relayed a message with id " + response.getString("In-Reply-To") + " back to user " + origin);
