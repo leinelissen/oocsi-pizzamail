@@ -67,8 +67,8 @@ Whenever sending an email, PizzaMail will let you know if your message has been 
     * *"error-while-sending"*: Something went wrong while passing your email off to Mailgun.
     * *"sent"*: Your email has been sent!
     * *"reply"*: A reply was received to an email you have previously sent
-* **id**: a tracking ID for an email you have sent or a reply you have received. *[only included with **sent** and **reply** status]*
-* **reply**: the contents of an email reply you have received. *[only included with **reply** status]*
+* **id**: a tracking ID for an email you have sent or a reply you have received. *[only included with "sent" and "reply" status]*
+* **reply**: the contents of an email reply you have received. *[only included with "reply" status]*
 
 #### For example
 ```
