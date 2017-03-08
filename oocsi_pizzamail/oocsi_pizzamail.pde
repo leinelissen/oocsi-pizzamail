@@ -71,7 +71,7 @@ void eventHandler(OOCSIEvent event)
         // Check if event contains to, content and subject
         // If that is not the case, return error and exit execution
         log("Received request is missing parameters");
-        sendResponse(event.getSender(), "Your request is missing parameters", false, "error-missing-parameters");
+        sendResponse(event.getSender(), "Your request is missing parameters", false, "missing-parameters");
 
         return;
     }
