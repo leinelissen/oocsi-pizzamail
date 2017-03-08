@@ -89,6 +89,6 @@ If properly set up, PizzaMail will also handle incoming emails too! Whenever you
 Message: You received a reply to your email.
 Success: true
 Status: reply
-Id: <20170305174111.121094.66148.F958E694@mg.codified.nl>
+Id: <20170305174111.121094.66148.F958E694@your-email-domain.com>
 Reply: We are out of pepperoni unfortunately 😰
 ```
