@@ -24,6 +24,7 @@ If your data is correct and a PizzaMail bot is listening, your email will be sen
 ### Example code
 ```java
 import nl.tue.id.oocsi.*;
+import nl.tue.id.oocsi.client.services.*;
 
 void setup()
 {
@@ -31,27 +32,44 @@ void setup()
   size(100, 100);
 
   // Setup OOCSI
-  OOCSI oocsi = new OOCSI(this, "Your-name", "oocsi.id.tue.nl");
+  OOCSI oocsi = new OOCSI(this, "Harry", "oocsi.id.tue.nl");
 
-  // Subscribe to your own channel, so you will be able to receive responses by the PizzaMail server
-  oocsi.subscribe("Your-name", "eventHandler");
+  // Subscribe to your own channel, so you will be able to receive replies to emails you sent
+  oocsi.subscribe("Harry", "eventHandler");
 
-  // Start sending an OOCSI message
-  oocsi
-    // We listen to the PizzaMail channel
-    .channel("PizzaMail")
-    // To whom do you want to send an email?
-    .data("to", "lei.nelissen94@gmail.com")
-    // What is the subject of your email?
+  // Start sending an OOCSI call
+  OOCSICall call = oocsi
+    // We call the PizzaMail handler with a 10s timeout
+    .call("PizzaMail", 10000)
+    // We send an email to someone
+    .data("to", "do-not-reply@definitelynotspam.com")
+    // With a certain subject
     .data("subject", "Party at my house!")
-    // What is the content of your email?
-    .data("content", "Free pizza and beer. Everyone is invited.")
-    // Send the email! 🍕
-    .send();
+    // And some email content
+    .data("content", "Free pizza and beer. Everyone is invited.");
+
+  // We send the call and wait for a response
+  call.sendAndWait();
+
+  // When a new response is received
+  if(call.hasResponse()){
+    // Read the new response
+    OOCSIEvent response = call.getFirstResponse();
+    println("Response received!");
+
+    // Check if the email was successfully sent
+    if(response.getBoolean("success", false) == true){
+      println("The email was sent!");
+    }
+  } else {
+    // If no response is received, there probably is not PizzaMail bot active
+    println("Sending email timed out...");
+  }
 }
 
+// Here we listen for replies to emails we have sent
 void eventHandler(OOCSIEvent event){
-    // Output any response received from the PizzaMail server
+    // Output any replies we have received from the PizzaMail server!
     System.out.println("Received a new message from PizzaMail:");
     System.out.println("Message: " + event.getString("message"));
     System.out.println("Success: " + event.getString("success"));
@@ -62,16 +80,14 @@ void eventHandler(OOCSIEvent event){
 ```
 
 ### Responses
-Whenever sending an email, PizzaMail will let you know if your message has been sent successfully. It does this by sending a message to your own channel. You can listen for these messages by subscribing to the channel with your own name. PizzaMail will then send some variables:
+Whenever sending an email, PizzaMail will let you know if your message has been sent successfully. It does this by giving a response to your call. You can listen to this response by following the example code. PizzaMail will then send some variables:
 * **message**: a string containing whatever PizzaMail wants to tell you
 * **success**: a boolean, telling you if an action has succeeded.
 * **status**: a short status code detailing what is happening
     * *"missing-parameters"*: You did not supply the correct parameters for sending an email
     * *"error-while-sending"*: Something went wrong while passing your email off to Mailgun.
     * *"sent"*: Your email has been sent!
-    * *"reply"*: A reply was received to an email you have previously sent
-* **id**: a tracking ID for an email you have sent or a reply you have received. *[only included with "sent" and "reply" status]*
-* **reply**: the contents of an email reply you have received. *[only included with "reply" status]*
+* **id**: a tracking ID for the email you have just sent *[only included with "sent" status]*
 
 #### For example
 ```
@@ -82,12 +98,17 @@ Id: <20170305174111.121094.66148.F958E694@your-email-domain.com>
 ```
 
 ## Email replies
-If properly set up, PizzaMail will also handle incoming emails too! Whenever you send an email to someone, PizzaMail will return a tracking ID to you. When the email you sent is replied to, PizzaMail will relay this message back to you using OOCSI. All you need to do is listen for PizzaMail responses as indicated above!
+If properly set up, PizzaMail will also handle incoming emails too! Whenever you send an email to someone, PizzaMail will respond to you with a tracking ID. When the email you sent is replied to, PizzaMail will relay this message back to you using OOCSI. It will send a message to a channel with your name, containing the message and the tracking ID you received. These replies will containt the following data:
+
+* **message**: a string containing whatever PizzaMail wants to tell you
+* **status**: a short status code detailing what is happening
+    * *"reply"*: You have received a new reply to an email you have sent
+* **id**: a tracking ID for the email that you have received a reply to
+* **reply**: the contents of the email
 
 #### For example
 ```
 Message: You received a reply to your email.
-Success: true
 Status: reply
 Id: <20170305174111.121094.66148.F958E694@your-email-domain.com>
 Reply: We are out of pepperoni unfortunately 😰

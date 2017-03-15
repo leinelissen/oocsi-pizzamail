@@ -30,7 +30,7 @@ void setup()
 
     // Setup OOCSI
     oocsi = new OOCSI(this, "PizzaMail", oocsiServer);
-    oocsi.subscribe(oocsiChannel, "eventHandler");
+    oocsi.register(oocsiChannel, "eventHandler");
     println('\n');
 
     // Initialise list of sent emails
@@ -62,7 +62,7 @@ void draw()
 *  Handle incoming email request from OOCSI
 *  ===================================================
 */
-void eventHandler(OOCSIEvent event)
+void eventHandler(OOCSIEvent event, OOCSIData response)
 {
     // Notify
     log("Received new event from: " + event.getSender());
@@ -71,7 +71,9 @@ void eventHandler(OOCSIEvent event)
         // Check if event contains to, content and subject
         // If that is not the case, return error and exit execution
         log("Received request is missing parameters");
-        sendResponse(event.getSender(), "Your request is missing parameters", false, "missing-parameters");
+        response.data("message", "Your request is missing parameters")
+          .data("success", false)
+          .data("status", "missing-parameters");
 
         return;
     }
@@ -84,8 +86,9 @@ void eventHandler(OOCSIEvent event)
         // Check if the email was succesfully sent
         // If not, log message and send response to client including error message
         log("Sending email failed! Please check the API response");
-        sendResponse(event.getSender(), "An error occured while sending your email. Response: \n" + request.getContent(), false, "error-while-sending");
-
+        response.data("message", "An error occured while sending your email Response: \n" + request.getContent())
+          .data("success", false)
+          .data("status", "error-while-sending");
         return;
     }
 
@@ -93,7 +96,10 @@ void eventHandler(OOCSIEvent event)
     registerEmail(event.getSender(), json.getString("id"));
 
     // Send response to client
-    sendResponse(event.getSender(), "Your email was successfully sent!", true, "sent", json.getString("id"));
+    response.data("message", "Your email was successfully sent!")
+      .data("success", true)
+      .data("status", "sent")
+      .data("id", json.getString("id"));
 }
 
 /**
@@ -124,11 +130,7 @@ boolean sendEmail(String to, String subject, String content)
     }
 
     // Log message
-    log("Email successfully sent: {");
-    log("  \"to\": \"" + to + "\"");
-    log("  \"subject\": \"" + subject + "\"");
-    log("  \"content\": \"" + content + "\"");
-    log("} \n");
+    log("Email successfully sent to: " + to);
 
     return true;
 }
@@ -149,26 +151,15 @@ void registerEmail(String user, String id)
 *  Send response to OOCSI client
 *  ===================================================
 */
-void sendResponse(String user, String message, boolean success, String status, String id, String reply)
+void sendResponse(String user, String message, String status, String id, String reply)
 {
     oocsi
         .channel(user)
         .data("message", message)
         .data("success", success)
-        .data("status", status)
         .data("id", id)
         .data("reply", reply)
         .send();
-}
-
-void sendResponse(String user, String message, boolean success, String status)
-{
-  sendResponse(user, message, success, status, null, null);  
-}
-
-void sendResponse(String user, String message, boolean success, String status, String id)
-{
-  sendResponse(user, message, success, status, id, null);  
 }
 
 /**
@@ -212,7 +203,7 @@ void checkResponses()
         String origin = sentEmails.get(response.getString("In-Reply-To"));
         if(origin != null) {
             // If it exists, pass message back to OOCSI user
-            sendResponse(origin, "You received a reply to your email.", true, "reply", response.getString("In-Reply-To"), response.getString("stripped-text"));
+            sendResponse(origin, "You received a reply to your email.", "reply", response.getString("In-Reply-To"), response.getString("stripped-text"));
 
             // Log action
             log("Relayed a message with id " + response.getString("In-Reply-To") + " back to user " + origin);
