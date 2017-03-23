@@ -28,17 +28,17 @@ import nl.tue.id.oocsi.client.services.*;
 
 void setup()
 {
-  // Setup processing
-  size(100, 100);
+    // Setup processing
+    size(100, 100);
 
-  // Setup OOCSI
-  OOCSI oocsi = new OOCSI(this, "Harry", "oocsi.id.tue.nl");
+    // Setup OOCSI
+    OOCSI oocsi = new OOCSI(this, "Harry", "oocsi.id.tue.nl");
 
-  // Subscribe to your own channel, so you will be able to receive replies to emails you sent
-  oocsi.subscribe("Harry", "eventHandler");
+    // Subscribe to your own channel, so you will be able to receive replies to emails you sent
+    oocsi.subscribe("Harry", "eventHandler");
 
-  // Start sending an OOCSI call
-  OOCSICall call = oocsi
+    // Start sending an OOCSI call
+    OOCSICall call = oocsi
     // We call the PizzaMail handler with a 10s timeout
     .call("PizzaMail", 10000)
     // We send an email to someone
@@ -48,23 +48,23 @@ void setup()
     // And some email content
     .data("content", "Free pizza and beer. Everyone is invited.");
 
-  // We send the call and wait for a response
-  call.sendAndWait();
+    // We send the call and wait for a response
+    call.sendAndWait();
 
-  // When a new response is received
-  if(call.hasResponse()){
-    // Read the new response
-    OOCSIEvent response = call.getFirstResponse();
-    println("Response received!");
+    // When a new response is received
+    if(call.hasResponse()){
+        // Read the new response
+        OOCSIEvent response = call.getFirstResponse();
+        println("Response received!");
 
-    // Check if the email was successfully sent
-    if(response.getBoolean("success", false) == true){
-      println("The email was sent!");
+        // Check if the email was successfully sent
+        if(response.getBoolean("success", false) == true){
+            println("The email was sent!");
+        }
+    } else {
+        // If no response is received, there probably is not PizzaMail bot active
+        println("Sending email timed out...");
     }
-  } else {
-    // If no response is received, there probably is not PizzaMail bot active
-    println("Sending email timed out...");
-  }
 }
 
 // Here we listen for replies to emails we have sent

@@ -156,7 +156,7 @@ void sendResponse(String user, String message, String status, String id, String 
     oocsi
         .channel(user)
         .data("message", message)
-        .data("success", success)
+        .data("success", true)
         .data("id", id)
         .data("reply", reply)
         .send();
